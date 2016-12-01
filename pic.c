@@ -100,7 +100,12 @@ Function* createFunction(char* n, Object*(*f)(Object*)) {
 
 typedef Object*(*o2o)(Object*);
 
+int lookupInvocations = 0;
+
 o2o lookupCalee(Object* o, char* fn) {
+
+  lookupInvocations++;
+
   for (int i=0;i<TYPE_COUNT;i++) {
     if (types[i].typeId == o->typeId) {
       //printf("type found at position %d: %s\n", i, types[i].name); 
@@ -174,6 +179,12 @@ int main(int argc, char** argv) {
     gettimeofday(&tval_after, NULL);
     timersub(&tval_after, &tval_before, &tval_result);
     printf("\n\nTime elapsed: %ld.%06ld\n", (long int)tval_result.tv_sec, (long int)tval_result.tv_usec);
+
+    if (lookupInvocations > TYPE_COUNT) {
+      fprintf(stderr,
+         "Function lookup invoked too many times (%d-times), you should implement a cache!", lookupInvocations);
+      exit(1);
+    }
 
     return 0;
 };
